@@ -332,7 +332,7 @@
 <div class="content" role="main">
   
   <!-- <form [formGroup]="form" (ngSubmit)="save()" class="col-md-12"> -->
-  <form class="col-md-12">
+  <form class="col-md-12"  [formGroup]="contactForm" (ngSubmit)="onSubmit()">
     <div class="row">
       <div class="col-md-3">
         <label for="" style="font-weight: bold;">Bond Type</label>
@@ -344,8 +344,8 @@
         </select>
       </div>
       <div class="col-md-3">
-        <label for="" style="font-weight: bold;">Licence Number (aka MC Number)</label>
-        <input class="form-control" formControlName="LicenceNumber" type="text">
+        <label for="" style="font-weight: bold;">License Number (aka MC Number)</label>
+        <input class="form-control" formControlName="LicenseNumber" type="text">
       </div>
       <div class="col-md-3">
         <label for="" style="font-weight: bold;">Business Name</label>
