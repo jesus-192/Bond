@@ -18,7 +18,8 @@
           "builder": "@angular-builders/custom-webpack:browser",
           "options": {
             "customWebpackConfig": {
-              "path": "./extra-webpack.config.js"
+              "path": "./extra-webpack.config.js",
+              "allowedCommonJsDependencies": ["crypto"]
               },
             "outputPath": "dist/bond",
             "index": "src/index.html",

@@ -18,6 +18,15 @@
     "importHelpers": true,
     "target": "es2020",
     "module": "es2020",
+    "paths" : {
+      "crypto": ["./node_modules/crypto-browserify"],
+      "stream": ["./node_modules/stream-browserify"],
+      "assert": ["./node_modules/assert"],
+      "http": ["./node_modules/stream-http"],
+      "https": ["./node_modules/https-browserify"],
+      "os": ["./node_modules/os-browserify"],
+      "https-proxy-agent":["./node_modules/http-proxy-agent"]
+    },
     "lib": [
       "es2020",
       "dom"
