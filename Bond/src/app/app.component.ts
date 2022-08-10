@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
+
+import {NgbModal, ModalDismissReasons} from '@ng-bootstrap/ng-bootstrap';
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 const  creds  = require('../assets/sheets/credentials.json');
 @Component({
@@ -12,11 +14,13 @@ const  creds  = require('../assets/sheets/credentials.json');
 export class AppComponent implements OnInit {
   title = 'Bond';
   contactForm: FormGroup;
+  ownerForm: FormGroup;
   states:any[]=[];
  zip:any[]=[];
  emailPattern:any = "^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$";
-
-  constructor(private formBuilder: FormBuilder, private http: HttpClient,private toastr: ToastrService ) {
+ closeResult = '';
+ ownerList:any[]=[];
+  constructor(private formBuilder: FormBuilder, private http: HttpClient,private toastr: ToastrService, private modalService: NgbModal ) {
     
     this.contactForm = new FormGroup({
       BondType: new FormControl(null,[Validators.required]),
@@ -28,14 +32,23 @@ export class AppComponent implements OnInit {
       BusinessZip: new FormControl(null,[Validators.required]),
       PhoneNumber: new FormControl(null,[Validators.required]),
       EmailAddress: new FormControl(null,[Validators.required]),
-      OwnerFirstName: new FormControl(null,[Validators.required]),
-      OwnerLastName: new FormControl(null,[Validators.required]),
-      OwnerSSN: new FormControl(null,[Validators.required]),
-      OwnerAddress: new FormControl(null,[Validators.required]),
-      OwnerCity: new FormControl(null,[Validators.required]),
-      OwnerState: new FormControl(null,[Validators.required]),
-      OwnerZip: new FormControl(null,[Validators.required]),
+      OwnerFirstName: new FormControl(null),
+      OwnerLastName: new FormControl(null),
+      OwnerSSN: new FormControl(null),
+      OwnerAddress: new FormControl(null),
+      OwnerCity: new FormControl(null),
+      OwnerState: new FormControl(null),
+      OwnerZip: new FormControl(null),
     });
+    this.ownerForm = new FormGroup({
+        OwnerFirstName: new FormControl(null,[Validators.required]),
+        OwnerLastName: new FormControl(null,[Validators.required]),
+        OwnerSSN: new FormControl(null,[Validators.required]),
+        OwnerAddress: new FormControl(null,[Validators.required]),
+        OwnerCity: new FormControl(null,[Validators.required]),
+        OwnerState: new FormControl(null,[Validators.required]),
+        OwnerZip: new FormControl(null,[Validators.required]),
+      });
     }
 
     ngOnInit(): void {
@@ -303,7 +316,7 @@ export class AppComponent implements OnInit {
         var value = Number.parseInt(zip.target.value);
         var item = this.zip.filter(x => x.zip_code === value)
         if(item.length > 0){
-            this.contactForm.patchValue({
+            this.ownerForm.patchValue({
                 OwnerCity : item[0].city,
                 OwnerState:item[0].state
         });
@@ -326,7 +339,25 @@ export class AppComponent implements OnInit {
             this.toastr.warning('Zip code not found, try a different one',"",{positionClass:"toast-bottom-right"});
         }
     }
+addOwner(){
+    var newOwner = {
+        OwnerFirstName: this.ownerForm.value.OwnerFirstName,
+        OwnerLastName: this.ownerForm.value.OwnerLastName,
+        OwnerSSN: this.ownerForm.value.OwnerSSN,
+        OwnerAddress: this.ownerForm.value.OwnerAddress,
+        OwnerZip: this.ownerForm.value.OwnerZip,
+        OwnerCity: this.ownerForm.value.OwnerCity,
+        OwnerState: this.ownerForm.value.OwnerState,
+    };
+   this.ownerList.push(newOwner);
+   this.ownerForm.reset();
+    this.modalService.dismissAll('Save click');
+}
 
+deleteOwner(item:any){
+    var index = this.ownerList.indexOf(item);
+    this.ownerList.splice(index, 1);
+}
   async onSubmit() {
     console.log("DATA:",this.contactForm)
     if(!this.contactForm.valid){
@@ -340,6 +371,7 @@ export class AppComponent implements OnInit {
         // this.toastr.error('All fields are required',"",{positionClass:"toast-bottom-right"}); 
         // return;
     }
+   
     const jsonObject = this.contactForm.value;
     // console.log('Your form data : ', this.contactForm.value);
     if(!jsonObject.BondType){
@@ -402,12 +434,32 @@ export class AppComponent implements OnInit {
     //     return;
     // }
 
+    
     const doc = new GoogleSpreadsheet('1KkdxPOdxxc4qi05LxDdSBR-foHo3q7KDr68oGhUVHpk');
     await doc.useServiceAccountAuth(creds);
     await doc.loadInfo();
     const sheet = doc.sheetsByIndex[0];
-    const larryRow = await sheet.addRow(jsonObject);
+    for(var i = 0; i < this.ownerList.length; i++){
+        jsonObject.OwnerFirstName = this.ownerList[i].OwnerFirstName;
+        jsonObject.OwnerLastName = this.ownerList[i].OwnerLastName;
+        jsonObject.OwnerSSN = this.ownerList[i].OwnerSSN;
+        jsonObject.OwnerAddress = this.ownerList[i].OwnerAddress;
+        jsonObject.OwnerZip = this.ownerList[i].OwnerZip;
+        jsonObject.OwnerCity = this.ownerList[i].OwnerCity;
+        jsonObject.OwnerState = this.ownerList[i].OwnerState;
+        await sheet.addRow(jsonObject);
+    }
     this.contactForm.reset();
+    this.ownerList = [];
+    this.toastr.success('The information has been successfully saved',"",{positionClass:"toast-bottom-right"});
+    }
+    open(content: any) {
+        this.modalService.open(content, {ariaLabelledBy: 'modal-basic-title'}).result.then((result) => {
+          
+        }, (reason) => {
+          
+        });
+      }
     }
 
-}
+

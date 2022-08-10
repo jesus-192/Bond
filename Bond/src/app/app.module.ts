@@ -9,6 +9,7 @@ import { CommonModule } from '@angular/common';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 @NgModule({
   declarations: [
     AppComponent
@@ -21,7 +22,7 @@ import { ToastrModule, ToastrService } from 'ngx-toastr';
     HttpClientModule,
     CommonModule,
     BrowserAnimationsModule, // required animations module
-    ToastrModule.forRoot(), // ToastrModule added
+    ToastrModule.forRoot(), NgbModule, // ToastrModule added
   ],
   providers: [      { provide: ToastrService} 
   ],
