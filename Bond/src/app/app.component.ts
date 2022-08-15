@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
+import { FormGroup, FormBuilder, FormControl, Validators, EmailValidator } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 
 import {NgbModal, ModalDismissReasons} from '@ng-bootstrap/ng-bootstrap';
@@ -349,6 +349,12 @@ addOwner(){
         OwnerCity: this.ownerForm.value.OwnerCity,
         OwnerState: this.ownerForm.value.OwnerState,
     };
+    if(!newOwner.OwnerAddress && !newOwner.OwnerCity && !newOwner.OwnerFirstName && !newOwner.OwnerLastName && !newOwner.OwnerSSN
+        && !newOwner.OwnerState && !newOwner.OwnerZip
+        ){
+            this.toastr.error('All owner fields are required',"",{positionClass:"toast-bottom-right"});
+            return
+        }
    this.ownerList.push(newOwner);
    this.ownerForm.reset();
     this.modalService.dismissAll('Save click');
@@ -358,6 +364,32 @@ deleteOwner(item:any){
     var index = this.ownerList.indexOf(item);
     this.ownerList.splice(index, 1);
 }
+
+validarEmail(item:any,fromHtml:boolean){
+    var email="";
+    if(fromHtml)
+    {
+        email=item.target.value;
+    }
+    else{
+        email= item;
+    }
+        var valid =email
+          .toLowerCase()
+          .match(
+            /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+          );
+        if(valid != null)
+        {
+            return true;
+        }
+        else{
+            this.toastr.warning(' Email Address is invalid',"",{positionClass:"toast-bottom-right"});
+            return false;
+        }
+      
+}
+
   async onSubmit() {
     console.log("DATA:",this.contactForm)
     if(!this.contactForm.valid){
@@ -372,7 +404,24 @@ deleteOwner(item:any){
         // return;
     }
    
+    if(this.ownerList.length === 0){
+        this.toastr.error('Must add at least one owner',"",{positionClass:"toast-bottom-right"}); 
+        return;
+    }
+
     const jsonObject = this.contactForm.value;
+    if(!jsonObject.EmailAddress){
+        this.toastr.error(' Email Address is required',"",{positionClass:"toast-bottom-right"});
+        return;
+    }
+    if(jsonObject.EmailAddress){
+        var validarEmail = this.validarEmail(jsonObject.EmailAddress,false)
+     if(!validarEmail) 
+     {
+        this.toastr.error(' Email Address is not a valid email',"",{positionClass:"toast-bottom-right"});
+        return;
+     }  
+    }
     // console.log('Your form data : ', this.contactForm.value);
     if(!jsonObject.BondType){
         this.toastr.error('Bond Type is required',"",{positionClass:"toast-bottom-right"}); 
@@ -406,17 +455,7 @@ deleteOwner(item:any){
         this.toastr.error('Phone Number is required',"",{positionClass:"toast-bottom-right"});
         return;
     }
-    if(!jsonObject.EmailAddress){
-        this.toastr.error(' Email Address is required',"",{positionClass:"toast-bottom-right"});
-        return;
-    }
-    // if(jsonObject.EmailAddress){
-    //  if(!this.emailPattern.test(jsonObject.EmailAddress)) 
-    //  {
-    //     this.toastr.error(' Email Address is not a valid email',"",{positionClass:"toast-bottom-right"});
-    //     return;
-    //  }  
-    // }
+   
     // if(!jsonObject.OwnerFirstName){
     //     this.toastr.error(' Owner First Name is required',"",{positionClass:"toast-bottom-right"});
     //     return;
@@ -435,7 +474,8 @@ deleteOwner(item:any){
     // }
 
     
-    const doc = new GoogleSpreadsheet('1KkdxPOdxxc4qi05LxDdSBR-foHo3q7KDr68oGhUVHpk');
+    // const doc = new GoogleSpreadsheet('1KkdxPOdxxc4qi05LxDdSBR-foHo3q7KDr68oGhUVHpk');
+    const doc = new GoogleSpreadsheet('1NVmuSk_zBCGrOAVCE5cg9qLqvUCeqa0bKXXp_FPI8Rw');
     await doc.useServiceAccountAuth(creds);
     await doc.loadInfo();
     const sheet = doc.sheetsByIndex[0];

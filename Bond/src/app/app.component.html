@@ -28,6 +28,10 @@
   <form class="col-md-12"  [formGroup]="contactForm" (ngSubmit)="onSubmit()">
     <div class="row">
       <div class="col-md-3">
+        <label for="" style="font-weight: bold;">Email Address</label>
+        <input class="form-control" formControlName="EmailAddress" type="email" (change)="validarEmail($event,true)">
+      </div>
+      <div class="col-md-3">
         <label for="" style="font-weight: bold;">Bond Type</label>
         <select formControlName="BondType" name="BondType" id="BondType" class="form-control">
           <option value="4531">BMC-84</option>
@@ -44,12 +48,12 @@
         <label for="" style="font-weight: bold;">Business Name</label>
         <input class="form-control" formControlName="BusinessName" type="text">
       </div>
+    </div>
+    <div class="row">
       <div class="col-md-3">
         <label for="" style="font-weight: bold;">Business Address</label>
         <input class="form-control" formControlName="BusinessAddress" type="text">
       </div>
-    </div>
-    <div class="row">
       <div class="col-md-3">
         <label for="" style="font-weight: bold;">Business Zip</label>
         <input class="form-control" formControlName="BusinessZip" maxlength="5" (change)="GetBusinessStateAndCity($event)"  (keypress)="onlyNumberKey($event)" type="text">
@@ -63,15 +67,12 @@
         <input class="form-control" formControlName="BusinessState" type="text" readonly>
       </div>
       
-      <div class="col-md-3">
-        <label for="" style="font-weight: bold;">Phone Number</label>
-        <input class="form-control" formControlName="PhoneNumber" type="text" (keypress)="onlyNumberKey($event)" maxlength="10">
-      </div>
+      
     </div>
     <div class="row">
       <div class="col-md-3">
-        <label for="" style="font-weight: bold;">Email Address</label>
-        <input class="form-control" formControlName="EmailAddress" type="email">
+        <label for="" style="font-weight: bold;">Mobile</label>
+        <input class="form-control" formControlName="PhoneNumber" type="text" (keypress)="onlyNumberKey($event)" maxlength="10">
       </div>
       <!-- <div class="col-md-3">
         <label for="" style="font-weight: bold;">Owner First Name</label>
